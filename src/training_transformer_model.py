@@ -5,20 +5,16 @@ import os
 from tensorflow import keras
 from tensorflow.keras import layers
 import training_data_generator as tg
+import parameter_specification as params
 
+num_feature = params.num_feature
+window_size = params.window_size
 
-timestep_size = 300
-num_feature = 72
-window_size = 40
+test_mbtr_dir = params.test_mbtr_dir 
+train_mbtr_dir = params.train_mbtr_dir
 
-test_mbtr_dir = '/home/cloud-user/evonano-ml/data/processed/test_set/features'
-train_mbtr_dir = '/home/cloud-user/evonano-ml/data/processed/training_set/features'
-
-x_train, y_train = tg.mbtr_mbtr_ds_generator(train_mbtr_dir, window_size = window_size, timestep_size = timestep_size)
-x_test, y_test = tg.mbtr_mbtr_ds_generator(test_mbtr_dir, window_size = window_size, timestep_size = timestep_size)
-
-#test_sasa_dir = '/home/cloud-user/evonano-ml/data/processed/test_set/label'
-#train_sasa_dir = '/home/cloud-user/evonano-ml/data/processed/training_set/label'
+x_train, y_train = tg.mbtr_mbtr_ds_generator(train_mbtr_dir, window_size = window_size, shuffle = False)
+x_test, y_test = tg.mbtr_mbtr_ds_generator(test_mbtr_dir, window_size = window_size, shuffle = False)
 
 class transformer():
   def __init__(self, num_feature,
@@ -69,7 +65,7 @@ model = transformer(num_feature = num_feature,
 
 model.compile(
     loss="mse",
-    optimizer=keras.optimizers.Adam(learning_rate=1e-4),
+    optimizer=keras.optimizers.Adam(learning_rate=1e-5),
     metrics=["mae"],
 )
 
@@ -78,17 +74,18 @@ h = model.fit(
     x_train,
     y_train,
     epochs = 100,
-    validation_split=0.2,
+    validation_split = 0.2,
     batch_size = 32,
     callbacks = callbacks,
     verbose = 1
 )
 
+print("Test set MAE:", model.evaluate(x_test, y_test)[1])
 
 model.save("/home/cloud-user/evonano-ml/models/transformer_model")
 
-plt.plot(np.arange(42), h.history['loss'], color = 'g', label = 'training loss')
-plt.plot(np.arange(42), h.history['val_loss'], color = 'r', label = 'validation loss')
+plt.plot(np.arange(len(h.history['loss'])), h.history['loss'], color = 'g', label = 'training loss')
+plt.plot(np.arange(len(h.history['loss'])), h.history['val_loss'], color = 'r', label = 'validation loss')
 plt.xlabel("Training iterations")
 plt.ylabel("Values")
 plt.legend()
@@ -96,19 +93,30 @@ plt.title('Transformer Performance')
 plt.savefig('plots/transformer_performance.png')
 
 
-titles = ['MBTR GEM11',
+
+titles = [
+'MBTR CY511',
+'MBTR GEM11',
 'MBTR NCL11',
 'MBTR OQL12v2',
-'MBTR S1_51_3']
-plt.figure(figsize=(10, 10))
-for i in range(4):
+'MBTR PAN11',
+'MBTR S1_10_3',
+'MBTR S1_51_3',
+'MBTR ZIL15',
+'MBTR PegZv1-5_1',
+'MBTR PegZv2-5_1',
+'MBTR DOX11Pz6',
+'MBTR Wyc2.5nm'
+]
+timesteps = [300, 300, 300, 300, 300, 300, 300, 300, 120, 120, 200, 200]
+plt.figure(figsize=(26, 12))
+for i in range(12):
   plt.tight_layout()
-  plt.subplot('22'+str(i+1))
-  plt.scatter(np.arange(num_feature), y_test[260 * i + 10], s= 3, label = 'label')
-  plt.scatter(np.arange(num_feature), np.reshape(model.predict(np.expand_dims(x_test[260 * i + 10], axis = 0)), (num_feature,)), s=3, label = 'pred')
+  plt.subplot(4, 3, (i+1))
+  plt.scatter(np.arange(num_feature), y_test[(timesteps[i] - 40) * i + 10], s= 3, label = 'label')
+  plt.scatter(np.arange(num_feature), np.reshape(model.predict(np.expand_dims(x_test[(timesteps[i] - 40) * i + 10], axis = 0)), (num_feature,)), s=3, label = 'pred')
   plt.xlabel("MBTR Feature Index", fontsize ='medium')
   plt.ylabel("Column value", fontsize ='medium', rotation = 90)
   plt.title(titles[i])
-  plt.legend()
+plt.legend()
 plt.savefig('plots/transformer_evaluation.png')
-
