@@ -40,6 +40,7 @@ def mbtr_mbtr_ds_generator(directory, window_size, sasa_dir = None, shuffle = Fa
   dataset_x = []
   dataset_y = []
   y_sasa = []
+  sasa_zero = []
   i = 0
   j = 0
   mbtr, timestep_size = mbtr_ds_generator(directory)
@@ -54,35 +55,18 @@ def mbtr_mbtr_ds_generator(directory, window_size, sasa_dir = None, shuffle = Fa
   elif shuffle == True:
     np.random.shuffle(mbtr)
 
-
   for i in range(len(timestep_size)):
     if i == 0:
         z = 0
     else:
         z = sum(timestep_size[:i])
-    for j in range(z, sum(timestep_size[ : i + 1]) - window_size):
+    for j in range(z, z + timestep_size[i] - window_size):
       dataset_x.append(mbtr[j : j + window_size])
       dataset_y.append(mbtr[j + window_size])
       if not sasa_dir is None:
         y_sasa.append(sasa[j + window_size])
- 
-  '''
-  while True:
-    if i + 1 == mbtr.shape[0]:
-      j = j + 1
-      break
-    if (i % timestep_size[j]) >= (window_size - 1):
-      if (i + 1) % timestep_size[j] == 0:
-        i = i + 1
-        
-        continue
-      dataset_x.append(mbtr[i - window_size + 1 : i + 1])
-      dataset_y.append(mbtr[i + 1])
-      if not sasa_dir is None:
-        y_sasa.append(sasa[i + 1])
-
-    i = i + 1
-  '''
+    if not sasa_dir is None:
+      sasa_zero.append(sasa[z])
   if not sasa_dir is None:
-    return np.array(dataset_x), np.array(dataset_y), np.array(y_sasa)
+    return np.array(dataset_x), np.array(dataset_y), np.array(y_sasa), np.array(sasa_zero)
   return np.array(dataset_x), np.array(dataset_y)

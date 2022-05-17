@@ -28,20 +28,20 @@ xgb_function(model, True)
 print("Test set MAE:", model.evaluate(x_test, y_test))
 
 titles = [
-'MBTR CY511',
 'MBTR GEM11',
+'MBTR GEM41',
 'MBTR NCL11',
-'MBTR OQL12v2',
-'MBTR PAN11',
-'MBTR S1_10_3',
-'MBTR S1_51_3',
-'MBTR ZIL15',
-'MBTR PegZv1-5_1',
-'MBTR PegZv2-5_1',
-'MBTR DOX11Pz6',
-'MBTR Wyc2.5nm'
+'MBTR NHQ51',
+'MBTR OQL11_3',
+'MBTR OQL13v2_3',
+'MBTR PAN11v2_3b',
+'MBTR PAN14v2_3',
+'MBTR PAN31_3',
+'MBTR S1_11R2_3',
+'MBTR S1_11R4_3',
+'MBTR S1_15_3'
 ]
-timesteps = [300, 300, 300, 300, 300, 300, 300, 300, 120, 120, 200, 200]
+timesteps = [300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300]
 plt.figure(figsize=(26, 12))
 for i in range(12):
   plt.tight_layout()

@@ -3,6 +3,7 @@ from joblib import dump, load
 import numpy as np
 import os
 from sklearn.metrics import mean_absolute_error
+from tqdm import tqdm
 
 class ensemble_model():
   def __init__(self, num_feature):
@@ -11,12 +12,10 @@ class ensemble_model():
     for i in range(self.num_feature):
       self.x_models.append(XGBRegressor(objective='reg:squarederror', n_jobs=-1, verbosity=1))
   def train(self, x, y):
-    for i in range(self.num_feature):
-      print(i, " Started")
+    for i in tqdm(range(self.num_feature)):
       x_t = [x[j,:,i] for j in range(x.shape[0])]
       y_t = [y[j][i] for j in range(y.shape[0])]
       self.x_models[i].fit(x_t, y_t)
-      print(i, " Done")
   def predict(self, test_sample):
     pred = []
     for i in range(self.num_feature):

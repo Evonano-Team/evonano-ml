@@ -7,6 +7,14 @@ from tensorflow.keras import layers
 import training_data_generator as tg
 import parameter_specification as params
 
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, InputLayer, Dropout, Conv1D, Conv2D, Flatten, Reshape, MaxPooling1D, MaxPooling2D, BatchNormalization, TimeDistributed
+from tensorflow.keras.optimizers import Adam
+
+
+
+
+
 num_feature = params.num_feature
 window_size = params.window_size
 
@@ -33,7 +41,26 @@ def plot_sasa(x_test, y_test, NN_model, num_feature):
 print("Here", x_train.shape)
 print("Here", y_train.shape)
 
+# model architecture
+model = Sequential()
+#model.add(Dense(num_feature, kernel_initializer='normal', input_dim = num_feature, activation='relu'))
+#model.add(Reshape((int(num_feature / 40), 40),))
+model.add(Conv1D(8, kernel_size=3, activation='relu', input_shape=(window_size, num_feature, ), padding='same'))
+model.add(MaxPooling1D(pool_size=2, strides=2, padding='same'))
+model.add(Dropout(0.25))
+model.add(Conv1D(16, kernel_size=3, activation='relu', padding='same'))
+model.add(MaxPooling1D(pool_size=2, strides=2, padding='same'))
+model.add(Dropout(0.25))
+model.add(Flatten())
+model.add(Dense(1, name='y_pred'))
 
+opt = Adam(learning_rate=0.005, beta_1=0.9, beta_2=0.999)
+BATCH_SIZE = 32
+
+# train the neural network
+model.compile(loss='mean_squared_error', optimizer=opt)
+
+'''
 class transformer():
   def __init__(self, num_feature,
     head_size=256, num_heads=12, ff_dim=4, num_transformer_blocks=4, mlp_units=[128],
@@ -86,9 +113,10 @@ NN_model.compile(
     optimizer=keras.optimizers.Adam(learning_rate=1e-4),
     metrics=["mae"],
 )
-
+'''
 callbacks = [keras.callbacks.EarlyStopping(patience = 40, restore_best_weights=True)]
-h = NN_model.fit(
+
+h = model.fit(
     x_train,
     y_train,
     epochs = 100,
@@ -97,8 +125,8 @@ h = NN_model.fit(
     callbacks = callbacks,
     verbose = 1
 )
-NN_model.save("/home/cloud-user/evonano-ml/models/sasa_transformer_model/model")
-print("Test Performance:", NN_model.evaluate(x_test, y_test))
+model.save("/home/cloud-user/evonano-ml/models/sasa_reg_model/model")
+print("Test Performance:", model.evaluate(x_test, y_test))
 
 plt.plot(np.arange(len(h.history['loss'])), h.history['loss'], color = 'g', label = 'training loss')
 plt.plot(np.arange(len(h.history['loss'])), h.history['val_loss'], color = 'r', label = 'validation loss')
@@ -108,4 +136,4 @@ plt.legend()
 plt.title('SASA Model Performance')
 plt.savefig('plots/sasa_model_performance.png')
 
-plot_sasa(x_test, y_test, NN_model, num_feature)
+plot_sasa(x_test, y_test, model, num_feature)
