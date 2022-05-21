@@ -17,6 +17,7 @@ train_mbtr_dir = params.train_mbtr_dir
 test_sasa_dir = params.test_sasa_dir
 train_sasa_dir = params.train_sasa_dir
 
+# Loading the train-test pairs in the specific format for SASA calculation Model
 x_train, _ = tg.mbtr_ds_generator(train_mbtr_dir)
 x_test, _ = tg.mbtr_ds_generator(test_mbtr_dir)
 y_train = tg.sasa_ds_generator(train_sasa_dir)
