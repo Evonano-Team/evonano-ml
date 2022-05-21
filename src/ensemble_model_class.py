@@ -38,7 +38,7 @@ class ensemble_model():
     Constructs all the necessary attributes for the model object.
     
     This function creates one XGBoost model for the specified number
-    of features each and initializes a list of the models.
+    of features each and initializes a list of the models in order.
     
     Parameters
     ----------
@@ -57,7 +57,7 @@ class ensemble_model():
     Loops through and Trains all the models
     
     Reads each model from the x_models attribute, takes only the data for
-    feature corresponding to the model, and trains the model.
+    the feature corresponding to the model, and trains the model.
     
     Parameters
     ----------
