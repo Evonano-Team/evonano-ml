@@ -6,13 +6,25 @@ import numpy as np
 import re
 
 if __name__ == '__main__':
+    """
+    Plots the ranges of SASA values in the test set realtive to each other.
+    
+    This is an utility function that loads the SASA values in the test set
+    and takes the maximum and minimum SASA values for each configuration. 
+    Then, a specified number are plotted in a scatter plot as (xi, yi) where,
+    xi is the minimum and yi is the maximum SASA values.
+    
+    The plot is saved in a the provided directory.
+    """
     sasa_ranges = []
-    for file in os.listdir('/home/cloud-user/evonano-ml/data/processed/test_set/label/'):
-        df = pd.read_csv('/home/cloud-user/evonano-ml/data/processed/test_set/label/' + file, delimiter=';')
+    for file in os.listdir('../data/processed/test_set/label/'):
+        df = pd.read_csv('../data/processed/test_set/label/' + file, delimiter=';')
         sasa_max = df['TOTAL'].max()
         sasa_min = df['TOTAL'].min()
         sasa_ranges.append((sasa_min, sasa_max, re.sub('_sasa.csv', '', file)))
-    sasa_ranges.sort(key=lambda x: x[0])
+    
+    # Sorted the list of configurations based on minimum value for grouping together
+    sasa_ranges.sort(key = lambda x: x[0])
     for item in sasa_ranges:
         print(item)
         plt.scatter(item[0], item[1])
