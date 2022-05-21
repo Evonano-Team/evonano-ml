@@ -23,6 +23,26 @@ y_train = tg.sasa_ds_generator(train_sasa_dir)
 y_test = tg.sasa_ds_generator(test_sasa_dir)
 
 def plot_sasa(x_test, y_test, NN_model, num_feature, name):
+    """
+    Plots the SASA values throughout the test set in a line graph.
+    
+    This function takes the test samples, plots the predictions
+    continuously for the whole test set, along with the values
+    from the ground-truth labels.
+    
+    Parameters
+    ----------
+    x_test : Array of float; shape(number of samples, num_features)
+        Feature data from the test set
+    y_test : Array of float; shape (number of samples, 1)
+        Ground-truth SASA values for each training data
+    NN_model : object of keras model
+        Trained SASA Calculation Model
+    num_feature : int
+        Number of features in the data
+    name : str
+        Name for the plot to be saved as
+    """
     c1 = 'slateblue'
     c2 = 'darkgray'
     plt.figure(figsize=(25, 10))
@@ -34,23 +54,29 @@ def plot_sasa(x_test, y_test, NN_model, num_feature, name):
     plt.title('SASA Model Performance')
     plt.savefig(name)
 
-
 print("Here", x_train.shape)
 print("Here", y_train.shape)
 
+"""
+Creates, compiles, and trains the SASA Calculation Neural
+Network. The model is then saved in the specified directory.
+
+The performance of the model with training metrics and validation
+metrics are plotted and saved
+"""
 NN_model = Sequential()
 NN_model.add(Dense(256, kernel_initializer='normal', input_dim = num_feature, activation='relu'))
-NN_model.add(Dense(256, kernel_initializer='normal',activation='relu'))
-NN_model.add(Dense(256, kernel_initializer='normal',activation='relu'))
+NN_model.add(Dense(256, kernel_initializer='normal', activation='relu'))
+NN_model.add(Dense(256, kernel_initializer='normal', activation='relu'))
 NN_model.add(Dense(1, kernel_initializer='normal', activation='linear'))
 NN_model.summary()
-NN_model.compile(loss="mse", optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4), metrics=["mae"])
+NN_model.compile(loss = "mse", optimizer = tf.keras.optimizers.Adam(learning_rate = 1e-4), metrics = ["mae"])
 
 checkpoint_name = '../models/sasa_calculation_model/weights/best_weights.hdf5' 
-checkpoint = ModelCheckpoint(checkpoint_name, monitor='val_loss', verbose = 1, save_best_only = True, mode ='auto')
-callbacks_list = [] # [checkpoint]
+checkpoint = ModelCheckpoint(checkpoint_name, monitor = 'val_loss', verbose = 1, save_best_only = True, mode ='auto')
+callbacks_list = []
 
-h = NN_model.fit(x_train, y_train, epochs = 50, batch_size= 32, validation_split = 0.3, verbose = 1, callbacks= callbacks_list)
+h = NN_model.fit(x_train, y_train, epochs = 50, batch_size = 32, validation_split = 0.3, verbose = 1, callbacks = callbacks_list)
 
 plt.plot(np.arange(len(h.history['loss'])), h.history['loss'], color = 'g', label = 'training loss')
 plt.plot(np.arange(len(h.history['loss'])), h.history['val_loss'], color = 'r', label = 'validation loss')
@@ -58,14 +84,9 @@ plt.xlabel("Training iterations")
 plt.ylabel("Values")
 plt.legend()
 plt.title('SASA Model Performance')
-plt.savefig('plots/sasa_model_50 epoch_performance.png')
+plt.savefig('plots/sasa_model_performance.png')
 
-
-#NN_model.load_weights(checkpoint_name)
-#NN_model.compile(loss="mse", optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4), metrics=["mae"])
-NN_model.save("/home/cloud-user/evonano-ml/models/sasa_calculation_model/model")
+NN_model.save("../models/sasa_calculation_model/model")
 print("Test Performance:", NN_model.evaluate(x_test, y_test))
 
-plot_sasa(x_test, y_test, NN_model, num_feature, name = 'plots/sasa__50 epoch_predictions.png')
-
-#plot_sasa(x_test[300:1201], y_test[300:1201], NN_model, num_feature, name = 'plots/sasa_sample_predictions.png')
+plot_sasa(x_test, y_test, NN_model, num_feature, name = 'plots/sasa_predictions.png')
