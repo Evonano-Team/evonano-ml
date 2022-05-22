@@ -17,6 +17,13 @@ x_train, y_train = tg.mbtr_mbtr_ds_generator(train_mbtr_dir, window_size = windo
 x_test, y_test = tg.mbtr_mbtr_ds_generator(test_mbtr_dir, window_size = window_size, shuffle = False)
 
 class transformer():
+  """
+  Creates a class for managing the tranformer model for simulation.
+  
+  The transformer class is initilized with the attributes needed for
+  the constructing and configuring the transformer model. The class
+  gives methods for building an object of the model class
+  """
   def __init__(self, num_feature,
     head_size=256, num_heads=12, ff_dim=4, num_transformer_blocks=4, mlp_units=[128],
     window_size = 40, mlp_dropout=0.4, dropout=0.25):
@@ -47,6 +54,14 @@ class transformer():
     return x + res
 
   def build_model(self):
+    """
+    Function for organizing and building the model
+    
+    Returns
+    --------
+    object of keras.Model class
+        Constructs the model and provides the object
+    """
     inputs = keras.Input(shape=(self.window_size, self.num_feature))
     x = inputs
     for _ in range(self.num_transformer_blocks):
@@ -59,6 +74,7 @@ class transformer():
     outputs = layers.Dense(self.num_feature)(x)
     return keras.Model(inputs, outputs)
 
+# An object for the class transformer is initialized, trained, evaluated, and saved.
 model = transformer(num_feature = num_feature,
     head_size=256, num_heads=12, ff_dim=4, num_transformer_blocks=4, mlp_units=[128],
     window_size = window_size, mlp_dropout=0.4, dropout=0.25).model
@@ -82,8 +98,12 @@ h = model.fit(
 
 print("Test set MAE:", model.evaluate(x_test, y_test)[1])
 
-model.save("/home/cloud-user/evonano-ml/models/transformer_model")
+model.save("../models/transformer_model")
 
+"""
+The performance of the model with training metrics and validation
+metrics are plotted and saved
+"""
 plt.plot(np.arange(len(h.history['loss'])), h.history['loss'], color = 'g', label = 'training loss')
 plt.plot(np.arange(len(h.history['loss'])), h.history['val_loss'], color = 'r', label = 'validation loss')
 plt.xlabel("Training iterations")
@@ -93,7 +113,7 @@ plt.title('Transformer Performance')
 plt.savefig('plots/transformer_performance.png')
 
 
-
+# Creating a scatterplot for the test set vector points and the predictions on a scatterplot
 titles = [
 'MBTR GEM11',
 'MBTR GEM41',
