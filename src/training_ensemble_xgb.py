@@ -15,13 +15,25 @@ x_test, y_test = tg.mbtr_mbtr_ds_generator(test_mbtr_dir, window_size = window_s
 
 
 
-def xgb_function(model, train = True):  
+def xgb_function(model, train = True): 
+    """
+    Decides whether to train the ensemble model or just load it.
+    
+    Parameters
+    ----------
+    model : object of ensemble_model class
+        The model object constructed without training.
+    train : bool
+        Truth value of whether the model was previously trained
+    """
+  
   if train:
     model.train(x_train, y_train)
-    model.save('/home/cloud-user/evonano-ml/models/ensemble/')
+    model.save('../models/ensemble/')
   else:
-    model.load_model('/home/cloud-user/evonano-ml/models/ensemble/')
+    model.load_model('../models/ensemble/')
 
+# An object for the class ensemble_model is initialized, trained/loaded, and evaluated.
 model = ensemble_model(num_feature)
 xgb_function(model, True)
 
@@ -42,6 +54,8 @@ titles = [
 'MBTR S1_15_3'
 ]
 timesteps = [300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300, 300]
+
+# Creating a scatterplot for the test set vector points and the predictions on a scatterplot
 plt.figure(figsize=(26, 12))
 for i in range(12):
   plt.tight_layout()
@@ -54,7 +68,7 @@ for i in range(12):
 plt.legend()
 plt.savefig('plots/ensemble_evaluation.png')
 
-
+# Creating a grouped barplot for one test set sample and it's actual values
 i = 2
 c1 = 'royalblue'
 c2 = 'tomato'
